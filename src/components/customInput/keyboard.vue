@@ -1,0 +1,87 @@
+<template>
+  <NumberKeyboard
+    class="custim-key-board"
+    ref="key-board"
+    :style="{bottom: value.show?0:keyBoardHeight}"
+    :show="value.show"
+    theme="custom"
+    extra-key="."
+    close-button-text="完成"
+    :hide-on-click-outside="false"
+    @close="$emit('close')"
+    @input="$emit('handleClick', $event)"
+    @delete="$emit('handleClickDelete')"
+  />
+</template>
+<script>
+import { NumberKeyboard } from "vant";
+export default {
+  data() {
+    return {
+      keyBoardHeight: "-1000px"
+    };
+  },
+  components: { NumberKeyboard },
+  props: {
+    value: {
+      type: Object,
+      default: _ => ({
+        val: "",
+        pos: null,
+        show: false
+      })
+    }
+  },
+  methods: {
+    getKeyBoardHeight() {
+      this.keyBoardHeight = `-${
+        this.$refs["key-board"]
+          ? this.$refs["key-board"].$el.offsetHeight
+          : 1000
+      }px`;
+    },
+    EventListener(e) {
+      if (
+        !this.isParent(e.target, document.querySelector(".input-container"))
+      ) {
+        this.$emit("close");
+      }
+    },
+    isParent(obj, parentObj) {
+      while (
+        obj != undefined &&
+        obj != null &&
+        obj.tagName.toUpperCase() != "BODY"
+      ) {
+        if (obj == parentObj) {
+          return true;
+        }
+        obj = obj.parentNode;
+      }
+      return false;
+    }
+  },
+  watch: {
+    "value.show": {
+      deep: true,
+      handler(val) {
+        document.body[(val ? "add" : "remove") + "EventListener"](
+          "touchstart",
+          this.EventListener
+        );
+      }
+    }
+  },
+  mounted() {
+    this.$nextTick(_ => {
+      this.getKeyBoardHeight();
+    });
+  }
+};
+</script>
+<style>
+.custim-key-board {
+  bottom: -1000px;
+  display: block !important;
+}
+</style>
