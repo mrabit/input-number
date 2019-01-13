@@ -33,6 +33,10 @@ export default {
     transform: {
       type: Boolean,
       default: true
+    },
+    max: {
+      type: [String, Number],
+      default: 9999999999.99
     }
   },
   methods: {
@@ -63,6 +67,19 @@ export default {
       Object.assign(this.$root.customInput.keyboard, {
         value: this.$root.customInput.input.$data
       });
+    }
+  },
+  watch: {
+    value: {
+      immediate: true,
+      handler(val, oldVal) {
+        if (val != oldVal) {
+          if (parseFloat(val) > parseFloat(this.max)) {
+            console.warn("maximum is: " + this.max, this);
+            this.$emit("input", "" + this.max);
+          }
+        }
+      }
     }
   },
   beforeDestroy() {
@@ -100,7 +117,7 @@ export default {
       let newValue = temp.join("");
 
       // 判断新值大于预定值,不执行赋值操作
-      if (parseFloat(newValue) > parseFloat("9999999999.99")) {
+      if (parseFloat(newValue) > parseFloat(input.max)) {
         return false;
       }
       // 不满足当前正则(禁止直接输入小数点,小数点后保留两位),不执行赋值操作

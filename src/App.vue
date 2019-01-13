@@ -1,13 +1,13 @@
 <template>
   <div id="app">
     <div style="height: 350px;width: 100%;"></div>
-    <custom-input v-if="showInput" v-model="inputMoney"></custom-input>
+    <custom-input v-if="showInput" v-model="inputMoney" placeholder="请输入金额1" max="99.99"></custom-input>
     <div>
       {{inputMoney}}
       <button @click="inputMoney = '55555555'">赋值</button>
       <button @click="showInput = !showInput">显隐</button>
     </div>
-    <custom-input v-if="showInput2" v-model="inputMoney2"></custom-input>
+    <custom-input v-if="showInput2" v-model="inputMoney2" placeholder="请输入金额2" max="99"></custom-input>
     <div>
       {{inputMoney2}}
       <button @click="inputMoney2 = '55555555'">赋值</button>
