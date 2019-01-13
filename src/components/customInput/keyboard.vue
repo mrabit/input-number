@@ -34,6 +34,7 @@ export default {
     }
   },
   methods: {
+    // 获取自定义键盘高度,实现自定义显隐
     getKeyBoardHeight() {
       this.keyBoardHeight = `-${
         this.$refs["key-board"]
@@ -50,6 +51,7 @@ export default {
         this.$emit("close");
       }
     },
+    // 判断当前dom对象是否是指定dom对象子级
     isParent(obj, parentObj) {
       return new Promise((resolve, reject) => {
         // 是否找到对应自定义input

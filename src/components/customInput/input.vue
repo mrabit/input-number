@@ -2,9 +2,9 @@
   <div class="input-container" @click.stop="handleClickOpen()">
     <div class="input" @click.stop="handleClickOpen()" ref="input">
       <span class="placeholder" v-show="!value" ref="placeholder">{{placeholder}}</span>
-      <span class="gb" v-show="postion === -1"></span>
+      <span class="cursor" v-show="postion === -1"></span>
       <template v-for="(item,index) in value">
-        <span :class="{gb:index===postion}" @click.stop="handleClickOpen(index)">{{item}}</span>
+        <span :class="{cursor:index===postion}" @click.stop="handleClickOpen(index)">{{item}}</span>
       </template>
     </div>
   </div>
@@ -124,11 +124,13 @@ export default {
     // 自定义键盘点击事件
     vmKeyboard.$on("handleClick", val => {
       let input = this.$root.customInput.input;
+
       let isDot = val === ".";
-      // 已存在小数点 或者 max不存在小数点
+      // 已存在小数点
       if (input.value.indexOf(".") >= 0 && isDot) {
         return false;
       }
+
       let temp = input.value.split("");
       // 当前光标位置+1位插入值
       temp.splice(input.postion + 1, 0, val);
@@ -138,12 +140,15 @@ export default {
       if (parseFloat(newValue) > parseFloat(input.maxNumber)) {
         return false;
       }
-      // 不满足当前正则(禁止直接输入小数点,小数点后保留两位),不执行赋值操作
+
+      // 最大值判断优于小数点位数判断
+      // 不满足当前正则(禁止直接输入小数点,小数点后保留位数),不执行赋值操作
       let toFixed = input.toFixed;
       let reg = new RegExp(`^(([1-9]{1}\\d*)|(0{1}))(\\.\\d{0,${toFixed}})?$`);
       if (!reg.test(newValue)) {
         return false;
       }
+
       // 赋值,当前光标位置+1
       input.$emit("input", newValue);
       input.postion++;
@@ -161,7 +166,6 @@ export default {
     });
     // 自定义键盘点击完成事件
     vmKeyboard.$on("close", _ => {
-      // debugger
       let input = this.$root.customInput.input;
       input.$emit("close", input.value);
       input.$parent.$el.style.transform = "";
@@ -182,21 +186,6 @@ export default {
   display: flex;
   align-items: center;
   overflow: hidden;
-  // position: relative;
-  // border-bottom: initial;
-  // &::after {
-  //   content: " ";
-  //   position: absolute;
-  //   pointer-events: none;
-  //   -webkit-box-sizing: border-box;
-  //   box-sizing: border-box;
-  //   left: 0;
-  //   right: 0;
-  //   bottom: 0;
-  //   -webkit-transform: scaleY(0.5);
-  //   transform: scaleY(0.5);
-  //   border-bottom: 1px solid #eee;
-  // }
   .input {
     width: 100%;
     padding-left: 8px;
@@ -221,7 +210,7 @@ export default {
     span {
       display: block;
     }
-    .gb {
+    .cursor {
       position: relative;
       height: 35px;
       &::after {
