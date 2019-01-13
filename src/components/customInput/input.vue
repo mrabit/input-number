@@ -22,6 +22,7 @@ export default {
     };
   },
   props: {
+    // 自定义input值
     value: {
       type: String,
       default: ""
@@ -30,16 +31,19 @@ export default {
       type: String,
       default: "placeholder"
     },
+    // 是否判断自定义input位置被自定义键盘覆盖
     transform: {
       type: Boolean,
       default: true
     },
+    // 自定义input最大值设置
     max: {
       type: [String, Number],
       default: 9999999999.99
     }
   },
   methods: {
+    // 自定义键盘展开事件
     handleClickOpen: function(index = this.value.length) {
       this.$root.customInput.input.postion = null;
       this.$root.customInput.input = this;
@@ -64,6 +68,7 @@ export default {
       this.$emit("onKeyboardOpen", this, this.$root.customInput.keyboard);
       this.show = true;
       this.postion = index - 1;
+      // object是引用传递,原数据更新,自定义键盘内的数据就会更新
       Object.assign(this.$root.customInput.keyboard, {
         value: this.$root.customInput.input.$data
       });
@@ -82,7 +87,9 @@ export default {
       }
     }
   },
+  // 自定义input释放事件
   beforeDestroy() {
+    // 当前页面不存在自定义input,释放键盘
     if (
       this.$root.customInput &&
       document.querySelectorAll(".input-container").length <= 0
@@ -93,6 +100,7 @@ export default {
     }
   },
   created() {
+    // 当前已存在自定义键盘
     if (this.$root.customInput && this.$root.customInput.keyboard) return false;
     // 实例化自定义键盘
     let vmKeyboard = new (Vue.extend(keyboard))({
@@ -148,6 +156,7 @@ export default {
       input.show = false;
       input.postion = null;
     });
+    // object是引用传递,原数据更新,自定义键盘内的数据就会更新
     Object.assign(vmKeyboard, {
       value: this.$root.customInput.input.$data
     });

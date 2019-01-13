@@ -18,6 +18,7 @@ import { NumberKeyboard } from "vant";
 export default {
   data() {
     return {
+      // 默认键盘位置
       keyBoardHeight: "-1000px"
     };
   },
