@@ -1,6 +1,6 @@
 <template>
-  <div class="input-container" @click="handleClickOpen()">
-    <div class="input" @click="handleClickOpen()" ref="input">
+  <div class="input-container" @click.stop="handleClickOpen()">
+    <div class="input" @click.stop="handleClickOpen()" ref="input">
       <span class="placeholder" v-show="!value" ref="placeholder">{{placeholder}}</span>
       <span class="gb" v-show="postion === -1"></span>
       <template v-for="(item,index) in value">
@@ -18,8 +18,7 @@ export default {
   data() {
     return {
       postion: null,
-      show: false,
-      vmKeyboard: null
+      show: false
     };
   },
   props: {
@@ -36,19 +35,10 @@ export default {
       default: true
     }
   },
-  watch: {
-    value(val, oldVal) {
-      // 外部赋值,更新当前value,并且光标放置末尾
-      if (val !== oldVal) {
-        // 当前光标已展示, 赋值新光标位置
-        if (this.show) {
-          this.postion = this.value.length - 1;
-        }
-      }
-    }
-  },
   methods: {
     handleClickOpen: function(index = this.value.length) {
+      this.$root.customInput.input.postion = null;
+      this.$root.customInput.input = this;
       if (this.transform) {
         // 当前窗口高度
         let winHeight = window.innerHeight;
@@ -57,7 +47,7 @@ export default {
         // 当前自定义input距离顶部高度
         let inputTop = this.$el.offsetTop;
         // 当前自定义键盘高度
-        let keyboardHeight = this.vmKeyboard.$el.offsetHeight;
+        let keyboardHeight = this.$root.customInput.keyboard.$el.offsetHeight;
         // 当前自定义input距离底部高度
         let inputBottom = winHeight - inputHeight - inputTop;
         inputBottom = inputBottom < 0 ? inputBottom * -1 : inputBottom;
@@ -67,27 +57,36 @@ export default {
           this.$parent.$el.style.transform = `translate3d(0px, -${keyboardHeight}px, 0px)`;
         }
       }
-      this.$emit("onKeyboardOpen", this, this.vmKeyboard);
+      this.$emit("onKeyboardOpen", this, this.$root.customInput.keyboard);
       this.show = true;
       this.postion = index - 1;
+      Object.assign(this.$root.customInput.keyboard, {
+        value: this.$root.customInput.input.$data
+      });
     }
   },
   created() {
+    if (this.$root.customInput && this.$root.customInput.keyboard) return false;
     // 实例化自定义键盘
     let vmKeyboard = new (Vue.extend(keyboard))({
       el: document.createElement("div")
     });
+    this.$root.customInput = {
+      keyboard: vmKeyboard,
+      input: this
+    };
     document.body.appendChild(vmKeyboard.$el); // 添加到dom
     // 自定义键盘点击事件
     vmKeyboard.$on("handleClick", val => {
+      let input = this.$root.customInput.input;
       let isDot = val === ".";
       // 已存在小数点
-      if (this.value.indexOf(".") >= 0 && isDot) {
+      if (input.value.indexOf(".") >= 0 && isDot) {
         return false;
       }
-      let temp = this.value.split("");
+      let temp = input.value.split("");
       // 当前光标位置+1位插入值
-      temp.splice(this.postion + 1, 0, val);
+      temp.splice(input.postion + 1, 0, val);
       let newValue = temp.join("");
 
       // 判断新值大于预定值,不执行赋值操作
@@ -99,30 +98,32 @@ export default {
         return false;
       }
       // 赋值,当前光标位置+1
-      this.$emit("input", newValue);
-      this.postion++;
+      input.$emit("input", newValue);
+      input.postion++;
     });
     // 自定义键盘点击删除事件
     vmKeyboard.$on("handleClickDelete", _ => {
+      let input = this.$root.customInput.input;
       // 当前光标位置为-1(首位), 不进行任何删除操作
-      if (this.postion < 0) return false;
-      let temp = this.value.split("");
-      temp.splice(this.postion, 1);
+      if (input.postion < 0) return false;
+      let temp = input.value.split("");
+      temp.splice(input.postion, 1);
       // 赋值,当前光标位置-1
-      this.$emit("input", temp.join(""));
-      this.postion--;
+      input.$emit("input", temp.join(""));
+      input.postion--;
     });
     // 自定义键盘点击完成事件
     vmKeyboard.$on("close", _ => {
-      this.$emit("close", this.value);
-      this.$parent.$el.style.transform = "";
-      this.show = false;
-      this.postion = null;
+      // debugger
+      let input = this.$root.customInput.input;
+      input.$emit("close", input.value);
+      input.$parent.$el.style.transform = "";
+      input.show = false;
+      input.postion = null;
     });
     Object.assign(vmKeyboard, {
-      value: this.$data
+      value: this.$root.customInput.input.$data
     });
-    this.vmKeyboard = vmKeyboard;
   }
 };
 </script>

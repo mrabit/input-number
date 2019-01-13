@@ -40,25 +40,37 @@ export default {
           : 1000
       }px`;
     },
-    EventListener(e) {
-      if (
-        !this.isParent(e.target, document.querySelector(".input-container"))
-      ) {
+    async EventListener(e) {
+      try {
+        await this.isParent(e.target, [
+          ...document.querySelectorAll(".input-container")
+        ]);
+      } catch (e) {
         this.$emit("close");
       }
     },
     isParent(obj, parentObj) {
-      while (
-        obj != undefined &&
-        obj != null &&
-        obj.tagName.toUpperCase() != "BODY"
-      ) {
-        if (obj == parentObj) {
-          return true;
+      // debugger;
+      return new Promise((resolve, reject) => {
+        // 是否找到对应自定义input
+        let flag = false;
+        for (let i in parentObj) {
+          (function(obj) {
+            while (
+              obj != undefined &&
+              obj != null &&
+              obj.tagName.toUpperCase() != "BODY" &&
+              !flag
+            ) {
+              if (obj == parentObj[i]) {
+                flag = true;
+              }
+              obj = obj.parentNode;
+            }
+          })(obj);
         }
-        obj = obj.parentNode;
-      }
-      return false;
+        flag ? resolve() : reject();
+      });
     }
   },
   watch: {
