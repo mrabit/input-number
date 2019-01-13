@@ -22,7 +22,7 @@ export default {
     };
   },
   props: {
-    // 自定义input值
+    // 自定义input值,需要分割每个字符到span标签内,所以type=String
     value: {
       type: String,
       default: ""
@@ -40,6 +40,16 @@ export default {
     max: {
       type: [String, Number],
       default: 9999999999.99
+    },
+    // 小数点后保留位数
+    toFixed: {
+      type: Number,
+      default: 2
+    }
+  },
+  computed: {
+    maxNumber() {
+      return this.max.toString();
     }
   },
   methods: {
@@ -115,7 +125,7 @@ export default {
     vmKeyboard.$on("handleClick", val => {
       let input = this.$root.customInput.input;
       let isDot = val === ".";
-      // 已存在小数点
+      // 已存在小数点 或者 max不存在小数点
       if (input.value.indexOf(".") >= 0 && isDot) {
         return false;
       }
@@ -125,11 +135,13 @@ export default {
       let newValue = temp.join("");
 
       // 判断新值大于预定值,不执行赋值操作
-      if (parseFloat(newValue) > parseFloat(input.max)) {
+      if (parseFloat(newValue) > parseFloat(input.maxNumber)) {
         return false;
       }
       // 不满足当前正则(禁止直接输入小数点,小数点后保留两位),不执行赋值操作
-      if (!/^(([1-9]{1}\d*)|(0{1}))(\.\d{0,2})?$/.test(newValue)) {
+      let toFixed = input.toFixed;
+      let reg = new RegExp(`^(([1-9]{1}\\d*)|(0{1}))(\\.\\d{0,${toFixed}})?$`);
+      if (!reg.test(newValue)) {
         return false;
       }
       // 赋值,当前光标位置+1

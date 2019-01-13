@@ -51,7 +51,6 @@ export default {
       }
     },
     isParent(obj, parentObj) {
-      // debugger;
       return new Promise((resolve, reject) => {
         // 是否找到对应自定义input
         let flag = false;
