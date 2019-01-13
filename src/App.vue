@@ -21,8 +21,11 @@
     <!-- <protocolPopup></protocolPopup> -->
     <div style="height: 500px;width: 100%;"></div>
     <custom-input v-model="inputMoney"></custom-input>
+    <custom-input v-model="inputMoney2"></custom-input>
     {{inputMoney}}
+    {{inputMoney2}}
     <button @click="inputMoney = '5555555'">点击</button>
+    <button @click="inputMoney2 = '5555555'">点击2</button>
     <!-- <keyboard></keyboard> -->
   </div>
 </template>
@@ -34,7 +37,8 @@ export default {
   name: "app",
   data() {
     return {
-      inputMoney: "1234"
+      inputMoney: "1234",
+      inputMoney2: "1234",
     };
   }
 };
