@@ -65,6 +65,16 @@ export default {
       });
     }
   },
+  beforeDestroy() {
+    if (
+      this.$root.customInput &&
+      document.querySelectorAll(".input-container").length <= 0
+    ) {
+      this.$root.customInput.keyboard.$destroy();
+      document.body.removeChild(this.$root.customInput.keyboard.$el);
+      delete this.$root.customInput.keyboard;
+    }
+  },
   created() {
     if (this.$root.customInput && this.$root.customInput.keyboard) return false;
     // 实例化自定义键盘
